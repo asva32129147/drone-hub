@@ -1,0 +1,16 @@
+:root{--bg:#0a0c0b;--surf:#121614;--line:#1f2a23;--text:#e6ece8;--mute:#8fa396;--green:#29753D;--green2:#3a9b52;--warn:#d9a441;--bad:#c9543f}
+*{box-sizing:border-box}body{margin:0;display:flex;min-height:100vh;background:var(--bg);color:var(--text);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+#nav{width:220px;padding:20px 16px;border-right:1px solid var(--line);position:sticky;top:0;height:100vh}
+#nav h1{font-size:17px;margin:0 0 18px;color:var(--green2)}#nav a{display:block;padding:8px 10px;border-radius:8px;color:var(--text);text-decoration:none}
+#nav a:hover,#nav a.on{background:var(--surf);box-shadow:inset 3px 0 var(--green)}main{flex:1;padding:24px;max-width:1100px;min-width:0}
+h2{margin:0 0 4px}h3{margin:22px 0 8px;color:var(--green2)}.muted{color:var(--mute);font-size:13px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);transition:width .3s}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.col{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:120px}.col.over{border-color:var(--green2)}
+.task{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0;cursor:grab}.tag{font-size:11px;color:var(--green2)}
+button,input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+button{cursor:pointer;background:var(--green);border-color:var(--green)}button.ghost{background:none;border-color:var(--line)}button:hover{filter:brightness(1.15)}
+textarea{width:100%;min-height:120px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px}.ok{color:var(--green2)}.no{color:var(--bad)}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px}pre{white-space:pre-wrap;font-size:12px}
+@media(max-width:760px){body{flex-direction:column}#nav{width:auto;height:auto;position:static;border:0}.board{grid-template-columns:1fr}}
