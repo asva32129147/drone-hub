@@ -1,4 +1,4 @@
-import { cfg } from '../config.js';
+import { cfg } from './config.js';
 let client = null, current = null; const subs = [];
 const fire = () => subs.forEach(f => f());
 export const sb = () => client, user = () => current, mode = () => (client ? 'cloud' : 'local'), onChange = f => subs.push(f);

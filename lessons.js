@@ -1,7 +1,8 @@
 import { h, bar } from './dom.js';
+import { sb, mode } from './auth.js';
 import { load, save } from './store.js';
 import { run } from './pyrunner.js';
-import { chapter } from '../data/chapter1.js';
+import { chapter } from './chapter1.js';
 const nums = s => (s.match(/-?\d*\.?\d+(?:e-?\d+)?/gi) || []).map(Number);
 const close = (x, a) => Math.abs(x - a) <= Math.max(0.01 * Math.abs(a), 1e-9);
 export function summary() { const p = load('progress', {}); return { done: chapter.items.filter(i => p[i.id]).length, total: chapter.items.length }; }
@@ -40,6 +41,16 @@ export function mount(el) {
         msg.textContent = ok ? 'All key points present.' : 'Keyword check only: add the missing points, or rephrase if you think you covered one.';
       } }, it.rubric ? 'Check answer' : 'Save answer')];
       if (it.model) btns.push(h('button', { class: 'ghost', onclick: () => { mod.textContent = 'Model answer: ' + it.model; } }, 'Show model answer'));
+      if (mode() === 'cloud') btns.push(h('button', { class: 'ghost', onclick: async () => {
+        if (!ta.value.trim()) return;
+        fb.textContent = 'Asking the AI grader...';
+        const { data, error } = await sb().functions.invoke('grade', { body: { prompt: it.prompt, model: it.model || '', hints: (it.rubric || []).map(r => r[0]), answer: ta.value } });
+        let d = data;
+        if (error) { try { d = await error.context.json(); } catch { d = { error: 'The AI grader is unavailable right now.' }; } }
+        if (!d || d.error) { fb.replaceChildren(h('div', { class: 'no' }, (d && d.error) || 'The AI grader is unavailable. Use the keyword check, or paste your answer in a chat.')); return; }
+        fb.replaceChildren(h('div', { class: d.pass ? 'ok' : 'no' }, (d.pass ? 'Passed: ' : 'Not yet: ') + d.feedback), ...(d.missing || []).map(m => h('div', { class: 'muted' }, 'Missing: ' + m)));
+        save('text:' + it.id, ta.value); mark(it.id, !!d.pass);
+      } }, 'Grade with AI'));
       card.append(ta, h('div', { class: 'row' }, ...btns), fb, mod);
     }
     card.append(msg); el.append(card);

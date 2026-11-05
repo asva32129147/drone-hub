@@ -1,6 +1,6 @@
 import { h, bar } from './dom.js';
 import { load, save } from './store.js';
-import { chapter } from '../data/chapter1.js';
+import { chapter } from './chapter1.js';
 const COLS = ['To do', 'Doing', 'Done'];
 function seed() {
   let t = load('tasks', null);
