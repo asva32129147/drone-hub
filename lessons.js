@@ -1,4 +1,4 @@
-import { h, bar } from './dom.js';
+import { h } from './dom.js';
 import { load, save } from './store.js';
 import { run } from './pyrunner.js';
 import { chapter } from './chapter1.js';
@@ -11,7 +11,7 @@ export function renderItem(it, onMark) {
   const p = load('progress', {}), kind = it.group === 'Checkpoints' ? 'cp' : it.group.startsWith('Unit Quiz') ? 'qz' : it.group === 'Chapter Test' ? 'ts' : 'ex';
   const msg = h('div', { class: 'muted' }, p[it.id] ? 'Completed' : '');
   const card = h('div', { class: 'card ' + kind + (p[it.id] ? ' pass' : '') }, kind !== 'ex' ? h('div', { class: 'chip2' }, it.label) : h('div', { class: 'tag' }, it.label), h('div', { class: 'q' }, it.prompt));
-  const mark = (ok) => { const q = load('progress', {}); q[it.id] = ok; save('progress', q); card.classList.toggle('pass', ok); onMark && onMark(it.id, ok); };
+  const mark = (ok) => { const f = load('first', {}); if (!(it.id in f)) { f[it.id] = ok; save('first', f); } const q = load('progress', {}); q[it.id] = ok; save('progress', q); card.classList.toggle('pass', ok); onMark && onMark(it.id, ok); };
   if (it.type === 'mc') {
     const name = 'mc-' + it.id, opts = h('div', {}, ...it.options.map((o, i) => h('label', { class: 'opt' }, h('input', { type: 'radio', name, value: String(i) }), h('span', {}, o)))), exp = h('div', { class: 'muted' });
     card.append(opts, h('div', { class: 'row' }, h('button', { onclick: () => { const c = opts.querySelector('input:checked'); if (!c) return; const ok = +c.value === it.correct; msg.className = ok ? 'ok' : 'no'; msg.textContent = ok ? 'Correct' : 'Not quite. Re-read the explanation, then try the next question.'; exp.textContent = it.explain; mark(ok); } }, 'Check')), exp);
@@ -42,9 +42,4 @@ export function renderItem(it, onMark) {
     card.append(ta, h('div', { class: 'row' }, ...btns), fb, mod);
   }
   card.append(msg); return card;
-}
-export function mount(el) {
-  const top = h('div', { class: 'card' }); el.append(h('h2', {}, 'Exercises'), top);
-  const upd = () => { const s = summary(); top.replaceChildren(h('b', {}, `${s.done} of ${s.total} exercises complete`), bar(Math.round(100 * s.done / s.total))); };
-  let group = ''; chapter.items.forEach(it => { if (it.group !== group) { group = it.group; el.append(h('h3', {}, group)); } el.append(renderItem(it, upd)); }); upd();
 }

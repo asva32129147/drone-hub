@@ -8,6 +8,11 @@ const math = el => window.renderMathInElement && window.renderMathInElement(el, 
 const isDone = (s, st, p) => st.read[s.id] && (s.items.every(id => p[id]) || st.skip[s.id]);
 export function sectionsDone() { const st = load('reader', { read: {}, skip: {} }), p = load('progress', {}); return secs.filter(s => isDone(s, st, p)).length; }
 export const sectionCount = secs.length;
+export function setFs(on) {
+  document.body.classList.toggle('fs', on);
+  if (on) { document.documentElement.requestFullscreen?.().catch(() => {}); } else if (document.fullscreenElement) document.exitFullscreen?.();
+}
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) document.body.classList.remove('fs'); });
 const head = (k, d, n) => k === 'quiz' || k === 'test' ? `Score: ${d} of ${n} correct` : `${k === 'asg' ? 'Exercises' : 'Checkpoints'}: ${d} of ${n} complete`;
 const startLabel = { cp: 'I have read this: show checkpoints', quiz: 'Start the quiz', test: 'Start the test', asg: 'Show the assignment' };
 export function mount(el) {
@@ -16,7 +21,7 @@ export function mount(el) {
   const draw = () => {
     const p = load('progress', {}), open = i => i === 0 || isDone(secs[i - 1], st, p);
     el.replaceChildren();
-    const outline = h('aside', { class: 'outline card' }, h('b', {}, 'Contents'), bar(Math.round(100 * secs.filter(s => isDone(s, st, p)).length / secs.length)), h('ul', {}, ...secs.map((s, i) => h('li', { class: !open(i) ? 'lock' : isDone(s, st, p) ? 'done' : '' }, open(i) ? h('a', { href: '#/read', onclick: e => { e.preventDefault(); document.getElementById('sec-' + s.id)?.scrollIntoView({ behavior: 'smooth' }); } }, s.title) : s.title))), h('button', { class: 'ghost noprint', onclick: () => { location.hash = '#/print'; } }, 'Save as PDF'));
+    const outline = h('aside', { class: 'outline card' }, h('b', {}, 'Contents'), bar(Math.round(100 * secs.filter(s => isDone(s, st, p)).length / secs.length)), h('ul', {}, ...secs.map((s, i) => h('li', { class: !open(i) ? 'lock' : isDone(s, st, p) ? 'done' : '' }, open(i) ? h('a', { href: '#/read', onclick: e => { e.preventDefault(); document.getElementById('sec-' + s.id)?.scrollIntoView({ behavior: 'smooth' }); } }, s.title) : s.title))), h('button', { class: 'ghost noprint', onclick: () => setFs(!document.body.classList.contains('fs')) }, 'Full screen'), h('button', { class: 'ghost noprint', onclick: () => { location.hash = '#/print'; } }, 'Save as PDF'));
     const pages = h('div');
     secs.forEach((s, i) => {
       if (!open(i)) return;
@@ -31,7 +36,7 @@ export function mount(el) {
       }
       pages.append(page);
     });
-    el.append(h('div', { class: 'reader' }, outline, pages)); math(el);
+    el.append(h('div', { class: 'reader' }, outline, pages), h('button', { id: 'fsexit', class: 'ghost', onclick: () => setFs(false) }, 'Exit full screen')); math(el);
     if (focus) { const t = document.getElementById(focus); focus = null; t && t.scrollIntoView({ behavior: 'smooth' }); }
   };
   draw();
